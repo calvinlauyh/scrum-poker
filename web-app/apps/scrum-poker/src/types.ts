@@ -1,0 +1,31 @@
+export type Class<T> = { new (...args: any[]): T };
+
+export type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+
+export interface User {
+    userId: UserID;
+    name?: string;
+}
+
+export type UserID = UUID;
+type UUID = string;
+
+export type AUTH_ERROR_CODE =
+    | ERROR_CODE.AUTH_PROVIDER_NOT_FOUND
+    | ERROR_CODE.AUTH_PROVIDER_NOT_INJECTABLE
+    | ERROR_CODE.AUTH_STATE_MISMATCH
+    | ERROR_CODE.AUTH_UNAUTHORIZED
+    | ERROR_CODE.UNKNOWN_ERROR;
+
+export type LOGIN_ERROR_CODE =
+    | ERROR_CODE.LOGIN_UNAUTHORIZED
+    | ERROR_CODE.UNKNOWN_ERROR;
+
+export enum ERROR_CODE {
+    AUTH_PROVIDER_NOT_FOUND = "AUTH_PROVIDER_NOT_FOUND",
+    AUTH_PROVIDER_NOT_INJECTABLE = "AUTH_PROVIDER_NOT_INJECTABLE",
+    AUTH_STATE_MISMATCH = "AUTH_STATE_MISMATCH",
+    AUTH_UNAUTHORIZED = "AUTH_UNAUTHORIZED",
+    LOGIN_UNAUTHORIZED = "LOGIN_UNAUTHORIZED",
+    UNKNOWN_ERROR = "UNKNOWN_ERROR"
+}

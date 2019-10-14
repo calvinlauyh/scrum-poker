@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  postgres:
+    image: postgres:11.5-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: scrum_poker
+    ports:
+      - "5432:5432"

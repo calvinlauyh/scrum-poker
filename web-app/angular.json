@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "projects": {
+    "scrum-poker": {
+      "projectType": "application",
+      "schematics": {
+        "@nrwl/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "apps/scrum-poker",
+      "sourceRoot": "apps/scrum-poker/src",
+      "prefix": "web-app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/apps/scrum-poker",
+            "index": "apps/scrum-poker/src/index.html",
+            "main": "apps/scrum-poker/src/main.ts",
+            "polyfills": "apps/scrum-poker/src/polyfills.ts",
+            "tsConfig": "apps/scrum-poker/tsconfig.app.json",
+            "aot": false,
+            "assets": [
+              "apps/scrum-poker/src/favicon.ico",
+              "apps/scrum-poker/src/assets"
+            ],
+            "styles": ["apps/scrum-poker/src/styles.scss"],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/scrum-poker/src/environments/environment.ts",
+                  "with": "apps/scrum-poker/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "scrum-poker:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "scrum-poker:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "scrum-poker:build"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "apps/scrum-poker/tsconfig.app.json",
+              "apps/scrum-poker/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**", "!apps/scrum-poker/**"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "apps/scrum-poker/jest.config.js",
+            "tsConfig": "apps/scrum-poker/tsconfig.spec.json",
+            "setupFile": "apps/scrum-poker/src/test-setup.ts"
+          }
+        }
+      }
+    },
+    "scrum-poker-e2e": {
+      "root": "apps/scrum-poker-e2e",
+      "sourceRoot": "apps/scrum-poker-e2e/src",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/scrum-poker-e2e/cypress.json",
+            "tsConfig": "apps/scrum-poker-e2e/tsconfig.e2e.json",
+            "devServerTarget": "scrum-poker:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "scrum-poker:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@nrwl/linter:lint",
+          "options": {
+            "linter": "tslint",
+            "tsConfig": ["apps/scrum-poker-e2e/tsconfig.e2e.json"],
+            "exclude": ["**/node_modules/**", "!apps/scrum-poker-e2e/**"]
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "defaultCollection": "@nrwl/angular"
+  },
+  "schematics": {
+    "@nrwl/angular:application": {
+      "unitTestRunner": "jest",
+      "e2eTestRunner": "cypress"
+    },
+    "@nrwl/angular:library": {
+      "unitTestRunner": "jest"
+    }
+  },
+  "defaultProject": "scrum-poker"
+}
