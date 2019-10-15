@@ -1,3 +1,6 @@
+#[cfg(test)]
+use mockall::automock;
+
 use crate::common::error::Result as CommonResult;
 use crate::common::message::ResponseMessage;
 
@@ -5,6 +8,7 @@ mod default;
 
 pub use default::DefaultClientChannel;
 
+#[cfg_attr(test, automock)]
 pub trait ClientChannel {
     /// Send ResponseMessage unconditionally, ignoring any potential errors.
     fn do_send(&self, msg: ResponseMessage) -> CommonResult<()>;

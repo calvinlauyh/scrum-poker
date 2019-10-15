@@ -24,8 +24,8 @@ pub mod message;
 
 pub struct Server<U, R, S, T>
 where
-    U: UserORM,
-    R: RoomORM + 'static,
+    U: UserORM + 'static,
+    R: RoomORM + Clone + 'static,
     S: ClientStore<T> + 'static,
     T: ClientChannel + 'static,
 {
@@ -39,20 +39,20 @@ where
 
 impl<U, R, S, T> Actor for Server<U, R, S, T>
 where
-    U: UserORM + 'static,
-    R: RoomORM + 'static,
-    S: ClientStore<T> + 'static,
-    T: ClientChannel + 'static,
+    U: UserORM,
+    R: RoomORM + Clone,
+    S: ClientStore<T>,
+    T: ClientChannel,
 {
     type Context = Context<Self>;
 }
 
 impl<U, R, S, T> Handler<ConnectMessage<T>> for Server<U, R, S, T>
 where
-    U: UserORM + 'static,
-    R: RoomORM + 'static,
-    S: ClientStore<T> + 'static,
-    T: ClientChannel + 'static,
+    U: UserORM,
+    R: RoomORM + Clone,
+    S: ClientStore<T>,
+    T: ClientChannel,
 {
     type Result = usize;
 
@@ -70,10 +70,10 @@ where
 
 impl<U, R, S, T> Handler<CreateRoomMessage<R, S, T>> for Server<U, R, S, T>
 where
-    U: UserORM + 'static,
-    R: RoomORM + 'static,
-    S: ClientStore<T> + 'static,
-    T: ClientChannel + 'static,
+    U: UserORM,
+    R: RoomORM + Clone,
+    S: ClientStore<T>,
+    T: ClientChannel,
 {
     type Result = CommonResult<Addr<Room<R, S, T>>>;
 
@@ -93,7 +93,7 @@ where
 impl<U, R, S, T> Server<U, R, S, T>
 where
     U: UserORM,
-    R: RoomORM,
+    R: RoomORM + Clone,
     S: ClientStore<T>,
     T: ClientChannel,
 {
@@ -132,7 +132,7 @@ where
 impl<U, R, S, T> Server<U, R, S, T>
 where
     U: UserORM,
-    R: RoomORM,
+    R: RoomORM + Clone,
     S: ClientStore<T>,
     T: ClientChannel,
 {

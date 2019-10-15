@@ -103,3 +103,30 @@ pub struct NewRoomParams {
     pub card_set: Vec<Card>,
     pub owner: ClientId,
 }
+
+// #[cfg(test)]
+// mod test {
+//     use super::*;
+
+//     use crate::poker::model::MockRoomORM;
+
+//     #[test]
+//     fn new_should_instantiate_room_struct_with_given_params() {
+//         let params = NewRoomParams {
+//             private: false,
+//             passphrase: Some(String::from("passphrase")),
+//             card_set: vec![
+//                 String::from("1"),
+//                 String::from("3"),
+//                 String::from("5"),
+//             ],
+//             owner: 1,
+//         };
+//         let room_orm = MockRoomORM::new();
+//         let client_store
+//         let shared_client_store = SharedClientStore::new();
+
+
+//         Room::new(params, room_orm, client_store);
+//     }
+// }

@@ -9,6 +9,9 @@ use crate::common::model::{ConnectionPool, Uuid as UuidType};
 use crate::schema::rooms;
 use crate::user::model::UserRecord;
 
+#[cfg(test)]
+use mockall::automock;
+
 pub type Card = String;
 
 #[derive(Insertable, Queryable, Associations, Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -32,7 +35,8 @@ pub struct NewRoomRecordParams {
     pub card_set: Vec<Card>,
 }
 
-pub trait RoomORM: Send + Sync + Clone {
+#[cfg_attr(test, automock)]
+pub trait RoomORM: Send + Sync {
     /// Create and return room record in database based on given params.
     fn create(&self, room: NewRoomRecordParams) -> CommonResult<RoomRecord>;
 }

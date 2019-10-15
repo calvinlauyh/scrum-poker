@@ -11,7 +11,7 @@ use client::store::DefaultClientStore;
 use common::error::ResultExt;
 use common::error::{ErrorKind, Result};
 use poker::model::RoomModel;
-use poker::Room;
+use poker::room::Room;
 use server::message::CreateRoomMessage;
 use server::Server;
 use user::auth::provider::oauth::OAuthProviderImplConfig;
