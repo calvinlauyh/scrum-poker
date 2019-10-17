@@ -60,7 +60,7 @@ where
         let client_id = self.generate_client_id();
         let client = Client {
             user_info: msg.user_info,
-            socket: msg.socket,
+            channel: msg.channel,
         };
         self.client_store.get_writable().insert(client_id, client);
 

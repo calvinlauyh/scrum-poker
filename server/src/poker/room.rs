@@ -104,29 +104,42 @@ pub struct NewRoomParams {
     pub owner: ClientId,
 }
 
-// #[cfg(test)]
-// mod test {
-//     use super::*;
+#[cfg(test)]
+mod test {
+    use super::*;
 
-//     use crate::poker::model::MockRoomORM;
+    use crate::client::channel::MockClientChannel;
+    use crate::client::store::DefaultClientStore;
+    use crate::client::Client;
+    use crate::poker::model::MockRoomORM;
 
-//     #[test]
-//     fn new_should_instantiate_room_struct_with_given_params() {
-//         let params = NewRoomParams {
-//             private: false,
-//             passphrase: Some(String::from("passphrase")),
-//             card_set: vec![
-//                 String::from("1"),
-//                 String::from("3"),
-//                 String::from("5"),
-//             ],
-//             owner: 1,
-//         };
-//         let room_orm = MockRoomORM::new();
-//         let client_store
-//         let shared_client_store = SharedClientStore::new();
+    #[test]
+    fn new_should_instantiate_room_struct_with_given_params() {
+        let private = false;
+        let passphrase = Some(String::from("passphrase"));
+        let card_set = vec![
+            String::from("1"),
+            String::from("3"),
+            String::from("5"),
+        ];
+        let owner = 1;
 
+        let params = NewRoomParams {
+            private,
+            passphrase: passphrase.clone(),
+            card_set: card_set.clone(),
+            owner,
+        };
+        let room_orm = MockRoomORM::new();
+        let client_store = DefaultClientStore::<MockClientChannel>::default();
+        let shared_client_store = SharedClientStore::new(client_store);
 
-//         Room::new(params, room_orm, client_store);
-//     }
-// }
+        let room = Room::new(params, room_orm, shared_client_store.clone());
+
+        assert_eq!(room.private, false);
+        assert_eq!(room.passphrase, passphrase);
+        assert_eq!(room.card_set, card_set);
+        assert_eq!(room.owner, owner);
+        assert_eq!(room.players, vec![owner]);
+    }
+}

@@ -87,7 +87,6 @@ pub struct OAuthProviderImplConfig {
 mod authenticate_test {
     use super::*;
 
-    use crate::error::{Error, ErrorKind};
     use crate::user::auth;
     use crate::user::auth::oauth::MockOAuthClient;
 

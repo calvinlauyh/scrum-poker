@@ -44,7 +44,7 @@ where
         self.server_addr
             .send(ConnectMessage {
                 user_info: self.user_info.clone(),
-                socket: DefaultClientChannel::new(addr.recipient()),
+                channel: DefaultClientChannel::new(addr.recipient()),
             })
             .into_actor(self)
             .then(|client_id_result, actor, ctx| {

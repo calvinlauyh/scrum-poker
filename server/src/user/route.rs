@@ -200,7 +200,7 @@ mod test {
     use actix_web::{http, test, App};
     use uuid::Uuid;
 
-    use crate::error::{Error, ErrorKind};
+    use crate::common::error::{Error, ErrorKind};
     use crate::user::auth::provider::{MockProvider, Provider};
     use crate::user::model::{MockUserORM, UserRecord};
 

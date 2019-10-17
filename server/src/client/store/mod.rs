@@ -2,9 +2,6 @@ use std::clone::Clone;
 use std::marker::PhantomData;
 use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-#[cfg(test)]
-use mockall::automock;
-
 use crate::client::channel::ClientChannel;
 use crate::client::{Client, ClientId};
 
@@ -59,17 +56,16 @@ where
     }
 }
 
-// #[cfg_attr(test, automock)]
-// pub trait ClientStore<T>
-// where
-//     T: ClientChannel,
-// {
-//     // Insert client Id to Client pair into store
-//     fn insert(&mut self, id: ClientId, client: Client<T>) -> ();
+pub trait ClientStore<T>
+where
+    T: ClientChannel,
+{
+    // Insert client Id to Client pair into store
+    fn insert(&mut self, id: ClientId, client: Client<T>) -> ();
 
-//     /// Find client by given client Id
-//     fn get(&self, id: &ClientId) -> Option<&Client<T>>;
+    /// Find client by given client Id
+    fn get(&self, id: &ClientId) -> Option<&Client<T>>;
 
-//     /// Returns true if the store contains client for the specified client Id.
-//     fn contains_key(&self, id: &ClientId) -> bool;
-// }
+    /// Returns true if the store contains client for the specified client Id.
+    fn contains_key(&self, id: &ClientId) -> bool;
+}

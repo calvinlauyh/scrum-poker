@@ -184,10 +184,10 @@ mod google_email_service_impl_test {
 
         let get_email_result = service.get_email(access_token);
         assert!(get_email_result.is_err());
-        assert_eq!(
-            get_email_result.unwrap_err(),
-            Error::new(ErrorKind::RemoteServerError, "500")
-        );
+
+        let err = get_email_result.unwrap_err();
+        assert_eq!(err.kind(), ErrorKind::RemoteServerError);
+        assert_eq!(err.message(), "500");
     }
 
     #[test]

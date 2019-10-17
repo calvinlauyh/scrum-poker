@@ -20,7 +20,7 @@ where
     T: ClientChannel,
 {
     pub user_info: SharedUserInfo,
-    pub socket: T,
+    pub channel: T,
 }
 
 #[derive(Message)]

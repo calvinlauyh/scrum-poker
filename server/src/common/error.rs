@@ -3,12 +3,11 @@ use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::result::Result as StdResult;
 
 pub type Result<T> = StdResult<T, Error>;
-type ErrorBoxType = Box<dyn Debug + Send + Sync + 'static>;
 
+#[derive(Clone)]
 pub struct Error {
     kind: ErrorKind,
     message: String,
-    last_error: Option<ErrorBoxType>,
 }
 
 impl Error {
@@ -20,19 +19,21 @@ impl Error {
         Error {
             kind,
             message: String::from(message),
-            last_error: None,
         }
     }
 
+    // last_error is formatted as part of string instead of being an object
+    // because automock requires return to implement Clone trait, and
+    // Box<dyn Error> cannot be cloned
     #[inline]
-    pub fn new_with_last_error<M>(kind: ErrorKind, message: M, last_error: ErrorBoxType) -> Self
+    pub fn new_with_last_error<M, E>(kind: ErrorKind, message: M, last_error: E) -> Self
     where
         String: From<M>,
+        E: Debug + Send + Sync + 'static,
     {
         Error {
             kind,
-            message: String::from(message),
-            last_error: Some(last_error),
+            message: format!("{} => {:#?}", String::from(message), last_error),
         }
     }
 }
@@ -40,19 +41,13 @@ impl Error {
 impl Display for Error {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "({}) {}", self.kind, self.message)
+        write!(f, "{}: {}", self.kind, self.message)
     }
 }
 
 impl Debug for Error {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "({}) {}", self.kind, self.message)?;
-
-        if let Some(ref last_error) = self.last_error {
-            write!(f, ": {:#?}", last_error)?;
-        }
-
-        Ok(())
+        write!(f, "{}: {}", self.kind, self.message)
     }
 }
 
@@ -61,6 +56,10 @@ impl StdError for Error {}
 impl Error {
     pub fn kind(&self) -> ErrorKind {
         self.kind
+    }
+
+    pub fn message(&self) -> &str {
+        self.message.as_str()
     }
 }
 
