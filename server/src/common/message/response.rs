@@ -1,9 +1,12 @@
 use actix::prelude::Message;
 use serde::Serialize;
 
+use crate::common::model::Uuid;
+use crate::poker::model::Card;
+
 #[derive(Message, Serialize, Clone)]
 pub enum ResponseMessage {
-    RoomCreated(String),
+    RoomCreated(CreatedRoom),
     RoomClosed(String),
     UserJoined(String),
     Unauthorized(String),
@@ -14,4 +17,11 @@ pub enum ResponseMessage {
     CardPlayed(String),
     CardPlayFailed(String),
     GameEnded(String),
+}
+
+#[derive(Serialize, Clone)]
+pub struct CreatedRoom {
+    pub uuid: Uuid,
+    pub private: bool,
+    pub card_set: Vec<Card>,
 }

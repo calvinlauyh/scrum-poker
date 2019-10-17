@@ -75,7 +75,7 @@ where
 {
     fn handle(&mut self, msg: ws::Message, ctx: &mut Self::Context) {
         debug!(
-            "Received {:?} from websocket session: {}",
+            "Received {:?} from websocket client {}",
             msg, self.client_id
         );
 
@@ -85,18 +85,17 @@ where
                     Ok(req) => self.handle_request_message(req, ctx),
                     Err(_) => {
                         warn!(
-                            "Unrecognized text {} from websocket session {}",
+                            "Unrecognized text {} from websocket client {}",
                             &msg_text, self.client_id
                         );
                     }
                 };
             }
-            ws::Message::Binary(_) => warn!(
-                "Unexpected Binary from websocket session {}",
-                self.client_id
-            ),
+            ws::Message::Binary(_) => {
+                warn!("Unexpected Binary from websocket client {}", self.client_id)
+            }
             ws::Message::Close(_) => {
-                info!("Closing websocket session {}", self.client_id);
+                info!("Closing websocket client {}", self.client_id);
                 ctx.stop();
             }
             ws::Message::Nop => (),
@@ -105,7 +104,7 @@ where
 
         // TODO: Removed debug message
         ctx.address()
-            .do_send(ResponseMessage::RoomCreated(String::from("Haha")));
+            .do_send(ResponseMessage::RoomClosed(String::from("Haha")));
     }
 }
 
@@ -140,6 +139,8 @@ where
             "Receiver create room request from websocket session {}",
             self.client_id
         );
+
+        // TODO: Check if user already in a room
 
         self.server_addr
             .send(AppCreateRoomMessage {

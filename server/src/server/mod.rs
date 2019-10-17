@@ -140,13 +140,13 @@ where
     fn create_room(
         &mut self,
         params: CreateRoomParams,
-        owner: ClientId,
+        owner_client_id: ClientId,
     ) -> CommonResult<Addr<Room<R, S, T>>> {
         let params = NewRoomParams {
             private: params.private,
             passphrase: params.passphrase,
             card_set: params.card_set,
-            owner,
+            owner_client_id,
         };
         let mut room = Room::new(params, self.room_model.clone(), self.client_store.clone());
 

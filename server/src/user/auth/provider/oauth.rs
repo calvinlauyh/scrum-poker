@@ -182,7 +182,7 @@ mod authenticate_test {
 
             #[test]
             fn should_return_get_email_error() {
-                let oauth_client = make_authorized_oauth_client();
+                let oauth_client = default_authorized_oauth_client();
                 let mut email_service = MockEmailService::new();
                 let mut access_token_service = MockAccessTokenService::new();
 
@@ -242,7 +242,7 @@ mod authenticate_test {
                 let oauth_client =
                     make_authorized_oauth_client_with_access_token(exchanged_access_token);
                 let mut email_service = MockEmailService::new();
-                let access_token_service = make_authorized_access_token_service();
+                let access_token_service = default_authorized_access_token_service();
 
                 email_service
                     .expect_get_email()
@@ -261,8 +261,8 @@ mod authenticate_test {
 
             #[test]
             fn should_ignore_revoke_access_token_error() {
-                let oauth_client = make_authorized_oauth_client();
-                let email_service = make_authroized_email_service();
+                let oauth_client = default_authorized_oauth_client();
+                let email_service = default_authroized_email_service();
                 let mut access_token_service = MockAccessTokenService::new();
 
                 access_token_service
@@ -308,10 +308,10 @@ mod authenticate_test {
             #[test]
             fn should_return_authenticated_user_with_email() {
                 let expected_email = String::from("calvinlauco@gmail.com");
-                let oauth_client = make_authorized_oauth_client();
+                let oauth_client = default_authorized_oauth_client();
                 let email_service =
                     make_authroized_email_service_with_email(expected_email.as_str());
-                let access_token_service = make_authorized_access_token_service();
+                let access_token_service = default_authorized_access_token_service();
 
                 let oauth_provider =
                     OAuthProviderImpl::new(oauth_client, email_service, access_token_service);
@@ -327,7 +327,7 @@ mod authenticate_test {
             }
         }
 
-        fn make_authorized_oauth_client() -> MockOAuthClient {
+        fn default_authorized_oauth_client() -> MockOAuthClient {
             let access_token = String::from("access-token");
             make_authorized_oauth_client_with_access_token(access_token.as_str())
         }
@@ -342,7 +342,7 @@ mod authenticate_test {
             oauth_client
         }
 
-        fn make_authroized_email_service() -> MockEmailService {
+        fn default_authroized_email_service() -> MockEmailService {
             let email = String::from("calvinlauco@gmail.com");
             make_authroized_email_service_with_email(email.as_str())
         }
@@ -357,7 +357,7 @@ mod authenticate_test {
             email_service
         }
 
-        fn make_authorized_access_token_service() -> MockAccessTokenService {
+        fn default_authorized_access_token_service() -> MockAccessTokenService {
             let mut access_token_service = MockAccessTokenService::new();
 
             access_token_service
