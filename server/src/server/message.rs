@@ -6,7 +6,7 @@ use crate::client::channel::ClientChannel;
 use crate::client::ClientId;
 use crate::common::error::Result as CommonResult;
 use crate::common::message::request::CreateRoomParams;
-use crate::common::message::RequestMessage;
+use crate::common::model::Uuid;
 use crate::poker::Room;
 use crate::user::info::SharedUserInfo;
 
@@ -32,14 +32,23 @@ where
     T: ClientChannel + 'static,
 {
     pub client_id: ClientId,
-    pub room_params: CreateRoomParams,
+    pub params: CreateRoomParams,
     pub room_orm_type: PhantomData<R>,
     pub client_store_type: PhantomData<S>,
     pub client_channel_type: PhantomData<T>,
 }
 
 #[derive(Message)]
-pub struct SessionRequestMessage {
+#[rtype(result = "CommonResult<Addr<Room<R, S, T>>>")]
+pub struct FindRoomMessage<R, S, T>
+where
+    R: RoomORM + 'static,
+    S: ClientStore<T> + 'static,
+    T: ClientChannel + 'static,
+{
     pub client_id: ClientId,
-    pub req: RequestMessage,
+    pub room_uuid: Uuid,
+    pub room_orm_type: PhantomData<R>,
+    pub client_store_type: PhantomData<S>,
+    pub client_channel_type: PhantomData<T>,
 }

@@ -1,8 +1,6 @@
-use std::error::Error as StdError;
-use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
-use std::result::Result as StdResult;
+use std::fmt;
 
-pub type Result<T> = StdResult<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone)]
 pub struct Error {
@@ -29,7 +27,7 @@ impl Error {
     pub fn new_with_last_error<M, E>(kind: ErrorKind, message: M, last_error: E) -> Self
     where
         String: From<M>,
-        E: Debug + Send + Sync + 'static,
+        E: fmt::Debug + Send + Sync + 'static,
     {
         Error {
             kind,
@@ -38,20 +36,20 @@ impl Error {
     }
 }
 
-impl Display for Error {
+impl fmt::Display for Error {
     #[inline]
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}: {}", self.kind, self.message)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format_message(f)
     }
 }
 
-impl Debug for Error {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}: {}", self.kind, self.message)
+impl fmt::Debug for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format_message(f)
     }
 }
 
-impl StdError for Error {}
+impl std::error::Error for Error {}
 
 impl Error {
     pub fn kind(&self) -> ErrorKind {
@@ -60,6 +58,15 @@ impl Error {
 
     pub fn message(&self) -> &str {
         self.message.as_str()
+    }
+
+    fn format_message(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.kind)?;
+        if self.message.len() > 0 {
+            write!(f, ": {}", self.message)?;
+        }
+
+        Ok(())
     }
 }
 
@@ -82,6 +89,7 @@ pub enum ErrorKind {
     UnsupportedProviderError,
 
     MissingClientError,
+    RoomNotFound,
 
     SendMessageError,
     DeserializationError,
@@ -96,24 +104,24 @@ impl From<ErrorKind> for Error {
     }
 }
 
-impl Display for ErrorKind {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+impl fmt::Display for ErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             _ => write!(f, "{:?}", self),
         }
     }
 }
 
-pub trait ResultExt<T> {
+pub trait ContextExt<T> {
     fn context<F, M>(self, ctx_fn: F) -> Result<T>
     where
         F: FnOnce() -> (ErrorKind, M),
         String: From<M>;
 }
 
-impl<T, E> ResultExt<T> for std::result::Result<T, E>
+impl<T, E> ContextExt<T> for std::result::Result<T, E>
 where
-    E: Debug + Send + Sync + 'static,
+    E: fmt::Debug + Send + Sync + 'static,
 {
     fn context<F, M>(self, ctx_fn: F) -> Result<T>
     where
@@ -127,7 +135,7 @@ where
     }
 }
 
-impl<T> ResultExt<T> for std::option::Option<T> {
+impl<T> ContextExt<T> for std::option::Option<T> {
     fn context<F, M>(self, ctx_fn: F) -> Result<T>
     where
         F: FnOnce() -> (ErrorKind, M),
@@ -136,6 +144,36 @@ impl<T> ResultExt<T> for std::option::Option<T> {
         self.ok_or_else(|| {
             let (kind, message) = ctx_fn();
             Error::new(kind, message)
+        })
+    }
+}
+
+pub trait ErrorKindExt<T> {
+    fn kind<F>(self, ctx_fn: F) -> Result<T>
+    where
+        F: FnOnce() -> ErrorKind;
+}
+
+impl<T, E> ErrorKindExt<T> for std::result::Result<T, E> {
+    fn kind<F>(self, ctx_fn: F) -> Result<T>
+    where
+        F: FnOnce() -> ErrorKind,
+    {
+        self.map_err(|_err| {
+            let kind = ctx_fn();
+            Error::from(kind)
+        })
+    }
+}
+
+impl<T> ErrorKindExt<T> for std::option::Option<T> {
+    fn kind<F>(self, ctx_fn: F) -> Result<T>
+    where
+        F: FnOnce() -> ErrorKind,
+    {
+        self.ok_or_else(|| {
+            let kind = ctx_fn();
+            Error::from(kind)
         })
     }
 }

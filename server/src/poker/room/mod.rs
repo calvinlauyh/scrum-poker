@@ -1,18 +1,22 @@
 use std::marker::PhantomData;
-use std::sync::{Arc, RwLock, RwLockReadGuard};
 
 use actix::prelude::*;
-use log::warn;
+use log::{error, warn};
 
 use crate::client::channel::ClientChannel;
 use crate::client::store::{ClientStore, SharedClientStore};
 use crate::client::ClientId;
-use crate::common::error::{ErrorKind, Result as CommonResult, ResultExt};
+use crate::common::error::{ErrorKind, Error, Result as CommonResult, ContextExt};
+use crate::common::message::request::JoinRoomParams;
 use crate::common::message::response::CreatedRoom;
-use crate::common::message::ResponseMessage;
+use crate::common::message::{RequestMessage, ResponseMessage};
 use crate::common::model::Uuid;
 use crate::poker::game::Game;
 use crate::poker::model::{Card, NewRoomRecordParams, RoomORM};
+
+use message::ClientRequestMessage;
+
+pub mod message;
 
 pub struct Room<R, S, T>
 where
@@ -42,6 +46,30 @@ where
     type Context = Context<Self>;
 }
 
+impl<R, S, T> Handler<ClientRequestMessage> for Room<R, S, T>
+where
+    R: RoomORM + 'static,
+    S: ClientStore<T> + 'static,
+    T: ClientChannel + 'static,
+{
+    type Result = CommonResult<()>;
+
+    fn handle(&mut self, msg: ClientRequestMessage, ctx: &mut Context<Self>) -> Self::Result {
+        // TODO: Check for client existence
+        let channel = match self.client_store.get_readable().get(&msg.client_id) {
+            Some(channel) => channel,
+            None => {
+                error!("Received request from deleted websocket client {}", msg.client_id);
+                return Err(Error::from(ErrorKind::MissingClientError));
+            }
+        };
+
+        self.handle_request_message(msg)?;
+
+        Ok(())
+    }
+}
+
 impl<R, S, T> Room<R, S, T>
 where
     R: RoomORM,
@@ -68,6 +96,10 @@ where
             client_store,
             client_store_channel_type: PhantomData,
         }
+    }
+
+    pub fn handle_request_message(&self, req: ClientRequestMessage) -> CommonResult<()> {
+        unreachable!()
     }
 
     /// Create the room and turn it into functional state. Return the created

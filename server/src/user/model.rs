@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::common::error::{ErrorKind, Result as CommonResult, ResultExt};
+use crate::common::error::{ErrorKind, Result as CommonResult, ContextExt};
 use crate::common::model::{ConnectionPool, Uuid as UuidType};
 use crate::schema::users;
 

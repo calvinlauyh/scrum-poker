@@ -3,7 +3,7 @@ use actix_web::{web, App, HttpServer};
 
 use scrum_poker::client::channel::DefaultClientChannel;
 use scrum_poker::client::store::DefaultClientStore;
-use scrum_poker::common::error::{ErrorKind, Result as CommonResult, ResultExt};
+use scrum_poker::common::error::{ErrorKind, Result as CommonResult, ContextExt};
 use scrum_poker::poker::model::RoomModel;
 use scrum_poker::server::Server;
 use scrum_poker::user::model::UserModel;

@@ -1,6 +1,6 @@
 use actix::prelude::*;
 
-use crate::common::error::{ErrorKind, Result as CommonResult, ResultExt};
+use crate::common::error::{ErrorKind, Result as CommonResult, ContextExt};
 use crate::common::message::ResponseMessage;
 
 use super::ClientChannel;

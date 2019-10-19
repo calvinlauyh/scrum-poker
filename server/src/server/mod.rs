@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::marker::PhantomData;
-use std::sync::{Arc, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 use actix::prelude::*;
 use log::error;
@@ -9,16 +8,15 @@ use rand::prelude::*;
 use crate::client::channel::ClientChannel;
 use crate::client::store::{ClientStore, SharedClientStore};
 use crate::client::{Client, ClientId};
-use crate::common::error::{Error, ErrorKind, Result as CommonResult};
-use crate::common::message::request::{CreateRoomParams, RequestMessage};
+use crate::common::error::{Error, ErrorKind, ErrorKindExt, Result as CommonResult};
+use crate::common::message::request::CreateRoomParams;
 use crate::common::model::Uuid;
 use crate::poker::model::RoomORM;
 use crate::poker::room::NewRoomParams;
 use crate::poker::Room;
-use crate::user::info::SharedUserInfo;
 use crate::user::model::UserORM;
 
-use message::{ConnectMessage, CreateRoomMessage};
+use message::{ConnectMessage, CreateRoomMessage, FindRoomMessage};
 
 pub mod message;
 
@@ -78,15 +76,45 @@ where
     type Result = CommonResult<Addr<Room<R, S, T>>>;
 
     fn handle(&mut self, msg: CreateRoomMessage<R, S, T>, ctx: &mut Context<Self>) -> Self::Result {
+        // TODO: Extract method to check for client existence
         let channel = match self.client_store.get_readable().get(&msg.client_id) {
             Some(channel) => channel,
             None => {
-                error!("Received request from deleted session {}", msg.client_id);
+                error!(
+                    "Received request from deleted websocket client {}",
+                    msg.client_id
+                );
                 return Err(Error::from(ErrorKind::MissingClientError));
             }
         };
 
-        self.create_room(msg.room_params, msg.client_id)
+        self.create_room(msg.params, msg.client_id)
+    }
+}
+
+impl<U, R, S, T> Handler<FindRoomMessage<R, S, T>> for Server<U, R, S, T>
+where
+    U: UserORM,
+    R: RoomORM + Clone,
+    S: ClientStore<T>,
+    T: ClientChannel,
+{
+    type Result = CommonResult<Addr<Room<R, S, T>>>;
+
+    fn handle(&mut self, msg: FindRoomMessage<R, S, T>, _ctx: &mut Context<Self>) -> Self::Result {
+        // TODO: Extract method to check for client existence
+        let channel = match self.client_store.get_readable().get(&msg.client_id) {
+            Some(channel) => channel,
+            None => {
+                error!(
+                    "Received request from deleted websocket client {}",
+                    msg.client_id
+                );
+                return Err(Error::from(ErrorKind::MissingClientError));
+            }
+        };
+
+        self.find_room(msg.room_uuid)
     }
 }
 
@@ -142,7 +170,7 @@ where
         params: CreateRoomParams,
         owner_client_id: ClientId,
     ) -> CommonResult<Addr<Room<R, S, T>>> {
-        let params = NewRoomParams {
+        let params: NewRoomParams = NewRoomParams {
             private: params.private,
             passphrase: params.passphrase,
             card_set: params.card_set,
@@ -156,5 +184,12 @@ where
         self.rooms.insert(room_uuid, room_addr.clone());
 
         Ok(room_addr)
+    }
+
+    fn find_room(&mut self, room_uuid: Uuid) -> CommonResult<Addr<Room<R, S, T>>> {
+        self.rooms
+            .get(&room_uuid)
+            .map(|addr| addr.clone())
+            .kind(|| ErrorKind::RoomNotFound)
     }
 }

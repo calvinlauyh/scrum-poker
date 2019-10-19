@@ -8,17 +8,28 @@ use serde_json;
 use crate::client::channel::DefaultClientChannel;
 use crate::client::store::DefaultClientStore;
 use crate::client::{ClientId, DEFAULT_CLIENT_ID};
-use crate::common::message::request::CreateRoomParams;
+use crate::common::message::request::{CreateRoomParams, JoinRoomParams};
 use crate::common::message::{RequestMessage, ResponseMessage};
 use crate::poker::model::RoomModel;
-use crate::server::message::{ConnectMessage, CreateRoomMessage, SessionRequestMessage};
+use crate::server::message::{
+    ConnectMessage as ConnectServerMessage, CreateRoomMessage as CreateRoomServerMessage,
+    FindRoomMessage as FindRoomServerMessage,
+};
 use crate::user::info::{SharedUserInfo, UserInfo};
 use crate::user::model::UserORM;
 use crate::AppRoom;
 use crate::AppServer;
 
-type AppCreateRoomMessage =
-    CreateRoomMessage<RoomModel, DefaultClientStore<DefaultClientChannel>, DefaultClientChannel>;
+type AppCreateRoomServerMessage = CreateRoomServerMessage<
+    RoomModel,
+    DefaultClientStore<DefaultClientChannel>,
+    DefaultClientChannel,
+>;
+type AppFindRoomServerMessage = FindRoomServerMessage<
+    RoomModel,
+    DefaultClientStore<DefaultClientChannel>,
+    DefaultClientChannel,
+>;
 
 pub struct Session<U>
 where
@@ -42,7 +53,7 @@ where
 
         let addr = ctx.address();
         self.server_addr
-            .send(ConnectMessage {
+            .send(ConnectServerMessage {
                 user_info: self.user_info.clone(),
                 channel: DefaultClientChannel::new(addr.recipient()),
             })
@@ -124,28 +135,25 @@ where
 
     fn handle_request_message(&self, req: RequestMessage, ctx: &mut ws::WebsocketContext<Self>) {
         match req {
-            RequestMessage::CreateRoom(room_params) => self.handle_create_room(room_params, ctx),
+            RequestMessage::CreateRoom(message) => self.handle_create_room(message, ctx),
+            RequestMessage::JoinRoom(message) => self.handle_join_room(message, ctx),
             // TODO:
             _ => unreachable!(),
         }
     }
 
-    fn handle_create_room(
-        &self,
-        room_params: CreateRoomParams,
-        ctx: &mut ws::WebsocketContext<Self>,
-    ) {
+    fn handle_create_room(&self, params: CreateRoomParams, ctx: &mut ws::WebsocketContext<Self>) {
         info!(
-            "Receiver create room request from websocket session {}",
+            "Receiver create room request from websocket client {}",
             self.client_id
         );
 
         // TODO: Check if user already in a room
 
         self.server_addr
-            .send(AppCreateRoomMessage {
+            .send(AppCreateRoomServerMessage {
                 client_id: self.client_id,
-                room_params,
+                params,
                 room_orm_type: PhantomData,
                 client_store_type: PhantomData,
                 client_channel_type: PhantomData,
@@ -155,6 +163,40 @@ where
                 match handler_result {
                     Ok(room_addr_result) => match room_addr_result {
                         Ok(room_addr) => actor.room_addr = Some(room_addr),
+                        _ => ctx.stop(),
+                    },
+                    _ => ctx.stop(),
+                };
+                fut::ok(())
+            })
+            .wait(ctx);
+    }
+
+    fn handle_join_room(&self, params: JoinRoomParams, ctx: &mut ws::WebsocketContext<Self>) {
+        info!(
+            "Receiver join room request from websocket client {}",
+            self.client_id
+        );
+
+        // TODO: Check if user already in a room
+
+        self.server_addr
+            .send(AppFindRoomServerMessage {
+                client_id: self.client_id,
+                room_uuid: params.room_uuid,
+                room_orm_type: PhantomData,
+                client_store_type: PhantomData,
+                client_channel_type: PhantomData,
+            })
+            .into_actor(self)
+            .then(|handler_result, actor, ctx| {
+                match handler_result {
+                    Ok(room_addr_result) => match room_addr_result {
+                        Ok(room_addr) => {
+                            // room_addr.do_send(message);
+
+                            actor.room_addr = Some(room_addr);
+                        }
                         _ => ctx.stop(),
                     },
                     _ => ctx.stop(),

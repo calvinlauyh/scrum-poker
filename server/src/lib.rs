@@ -8,11 +8,10 @@ use diesel::PgConnection;
 
 use client::channel::DefaultClientChannel;
 use client::store::DefaultClientStore;
-use common::error::ResultExt;
+use common::error::ContextExt;
 use common::error::{ErrorKind, Result};
 use poker::model::RoomModel;
 use poker::room::Room;
-use server::message::CreateRoomMessage;
 use server::Server;
 use user::auth::provider::oauth::OAuthProviderImplConfig;
 use user::auth::provider::{GoogleProviderImpl, GuestProviderImpl, Provider};
