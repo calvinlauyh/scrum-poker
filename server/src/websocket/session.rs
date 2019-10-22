@@ -136,7 +136,7 @@ where
     fn handle_request_message(&self, req: RequestMessage, ctx: &mut ws::WebsocketContext<Self>) {
         match req {
             RequestMessage::CreateRoom(message) => self.handle_create_room(message, ctx),
-            RequestMessage::JoinRoom(message) => self.handle_join_room(message, ctx),
+            RequestMessage::JoinRoom(message) => self.handle_join(message, ctx),
             // TODO:
             _ => unreachable!(),
         }
@@ -172,7 +172,7 @@ where
             .wait(ctx);
     }
 
-    fn handle_join_room(&self, params: JoinRoomParams, ctx: &mut ws::WebsocketContext<Self>) {
+    fn handle_join(&self, params: JoinRoomParams, ctx: &mut ws::WebsocketContext<Self>) {
         info!(
             "Receiver join room request from websocket client {}",
             self.client_id

@@ -171,7 +171,6 @@ where
         owner_client_id: ClientId,
     ) -> CommonResult<Addr<Room<R, S, T>>> {
         let params: NewRoomParams = NewRoomParams {
-            private: params.private,
             passphrase: params.passphrase,
             card_set: params.card_set,
             owner_client_id,

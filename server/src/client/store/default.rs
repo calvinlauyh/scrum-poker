@@ -34,6 +34,10 @@ where
         self.store.get(id)
     }
 
+    fn get_mut(&mut self, id: &ClientId) -> Option<&mut Client<T>> {
+        self.store.get_mut(id)
+    }
+
     fn contains_key(&self, id: &ClientId) -> bool {
         return self.store.contains_key(id);
     }

@@ -4,7 +4,7 @@ use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::common::error::{ErrorKind, Result as CommonResult, ContextExt};
+use crate::common::error::{ContextExt, ErrorKind, Result as CommonResult};
 use crate::common::model::{ConnectionPool, Uuid as UuidType};
 use crate::schema::rooms;
 use crate::user::model::UserRecord;
@@ -19,7 +19,6 @@ pub type Card = String;
 #[table_name = "rooms"]
 pub struct RoomRecord {
     pub uuid: UuidType,
-    pub private: bool,
     pub passphrase: Option<String>,
     pub card_set: Vec<Card>,
     pub owner_uuid: UuidType,
@@ -27,9 +26,8 @@ pub struct RoomRecord {
     pub last_updated_at: SystemTime,
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct NewRoomRecordParams {
-    pub private: bool,
     pub passphrase: Option<String>,
     pub owner_uuid: UuidType,
     pub card_set: Vec<Card>,
@@ -59,7 +57,6 @@ impl RoomORM for RoomModel {
         let now = SystemTime::now();
         let new_room = RoomRecord {
             uuid: Uuid::new_v4().to_string(),
-            private: room.private,
             passphrase: room.passphrase,
             card_set: room.card_set,
             owner_uuid: room.owner_uuid,

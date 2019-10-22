@@ -32,7 +32,6 @@ table! {
 table! {
     rooms (uuid) {
         uuid -> Varchar,
-        private -> Bool,
         passphrase -> Nullable<Varchar>,
         card_set -> Array<Text>,
         current_game_uuid -> Nullable<Varchar>,

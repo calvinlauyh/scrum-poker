@@ -90,6 +90,8 @@ pub enum ErrorKind {
 
     MissingClientError,
     RoomNotFound,
+    AlreadyJoinedError,
+    UnauthenticatedError,
 
     SendMessageError,
     DeserializationError,

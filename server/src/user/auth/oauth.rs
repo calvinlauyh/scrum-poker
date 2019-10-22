@@ -4,7 +4,7 @@ use oauth2::TokenResponse;
 use oauth2::{AuthUrl, AuthorizationCode, ClientId, ClientSecret, RedirectUrl, TokenUrl};
 use url::Url;
 
-use crate::common::error::{ErrorKind, Result as CommonResult, ContextExt};
+use crate::common::error::{ContextExt, ErrorKind, Result as CommonResult};
 
 #[cfg(test)]
 use mockall::automock;

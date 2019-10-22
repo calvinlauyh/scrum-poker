@@ -4,7 +4,7 @@ use reqwest;
 use reqwest::StatusCode;
 use serde::Deserialize;
 
-use crate::common::error::{Error, ErrorKind, Result as CommonResult, ContextExt};
+use crate::common::error::{ContextExt, Error, ErrorKind, Result as CommonResult};
 use crate::user::auth;
 use crate::user::auth::oauth::{OAuthClientImpl, OAuthClientImplConfig};
 

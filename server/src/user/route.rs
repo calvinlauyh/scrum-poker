@@ -446,9 +446,9 @@ mod test {
     }
 
     fn make_successful_provider_service_web_data() -> web::Data<ProviderService> {
-        let mut oauth_provider =
+        let oauth_provider =
             make_successful_oauth_provider_service(String::from("calvinlauco@gmail.com"));
-        let mut guest_provider = make_successful_guest_provider_service();
+        let guest_provider = make_successful_guest_provider_service();
 
         make_provider_service_web_data(vec![oauth_provider, guest_provider])
     }

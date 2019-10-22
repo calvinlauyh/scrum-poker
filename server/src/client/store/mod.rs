@@ -66,6 +66,9 @@ where
     /// Find client by given client Id
     fn get(&self, id: &ClientId) -> Option<&Client<T>>;
 
+    /// Find client by given client Id
+    fn get_mut(&mut self, id: &ClientId) -> Option<&mut Client<T>>;
+
     /// Returns true if the store contains client for the specified client Id.
     fn contains_key(&self, id: &ClientId) -> bool;
 }
