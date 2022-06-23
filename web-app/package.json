@@ -39,7 +39,7 @@
     "@angular/router": "^8.0.0",
     "@nrwl/angular": "8.4.3",
     "core-js": "^2.5.4",
-    "jsdom": "^15.1.1",
+    "jsdom": "^16.5.0",
     "rxjs": "~6.4.0",
     "uuid": "^3.3.3",
     "zone.js": "^0.9.1"
